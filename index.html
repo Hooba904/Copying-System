@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة قسم النسخ والمراجعة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0f172a; --slate:#475569; --line:#cbd5e1; --bg:#f1f5f9;
+    --green:#047857; --green-d:#065f46;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Tajawal',Tahoma,sans-serif;background:var(--bg);color:#1e293b;font-size:15px;line-height:1.5}
+  header{background:var(--navy);color:#cbd5e1;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(0,0,0,0.15)}
+  .hwrap{max-width:1280px;margin:auto;padding:14px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .brand h1{font-size:20px;font-weight:900;color:#fff;margin:0}
+  .brand p{margin:3px 0 0;font-size:13px;color:#94a3b8}
+  .msel{margin-inline-start:auto}
+  select,input,button{font-family:inherit}
+  nav{max-width:1280px;margin:auto;display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 14px}
+  .nbtn{background:#1e293b;color:#cbd5e1;border:1px solid #334155;border-radius:12px;padding:9px 15px;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+  .nbtn:hover{background:#334155;color:#fff}
+  .nbtn.on{background:var(--green);border-color:var(--green);color:#fff}
+  main{max-width:1280px;margin:auto;padding:22px 18px 70px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .card h3{margin:0 0 14px;font-size:16px;font-weight:900;border-bottom:1px solid #f1f5f9;padding-bottom:10px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:18px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat b{display:block;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2}
+  .stat span{font-size:13px;color:#64748b;font-weight:800}
+  .stat small{display:block;font-size:12px;color:#94a3b8;margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{background:#f8fafc;color:#475569;font-size:13px;font-weight:900;padding:10px 12px;text-align:right;border-bottom:2px solid var(--line)}
+  td{padding:10px 12px;border-bottom:1px solid #f1f5f9;text-align:right}
+  tr:hover td{background:#fafbfc}
+  .btn{background:var(--green);color:#fff;border:0;border-radius:12px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{background:var(--green-d)}
+  .btn-dark{background:var(--navy)}
+  .btn-dark:hover{background:#1e293b}
+  .btn-ghost{background:#fff;color:#334155;border:1px solid #cbd5e1}
+  .btn-ghost:hover{background:#f8fafc}
+  .btn-danger{background:#e11d48}
+  .btn-danger:hover{background:#be123c}
+  .btn-sm{padding:6px 12px;font-size:13px;border-radius:9px}
+  .inp,.sel{width:100%;border:1px solid #cbd5e1;border-radius:11px;padding:9px 12px;font-size:14px;background:#fff}
+  .inp:focus,.sel:focus{outline:2px solid #a7f3d0;border-color:var(--green)}
+  label{display:block;font-size:12px;font-weight:800;color:#475569;margin-bottom:5px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  .row>div{flex:1;min-width:130px}
+  .badge{display:inline-block;font-size:12px;font-weight:800;padding:4px 11px;border-radius:99px;border:1px solid transparent;white-space:nowrap}
+  .st-received{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
+  .st-copying{background:#e0f2fe;color:#075985;border-color:#bae6fd}
+  .st-copied{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}
+  .st-reviewing{background:#fef3c7;color:#92400e;border-color:#fde68a}
+  .st-reviewed{background:#ccfbf1;color:#115e59;border-color:#99f6e4}
+  .st-delivered{background:#d1fae5;color:#065f46;border-color:#a7f3d0}
+  .role-copy{background:#e0e7ff;color:#3730a3;border-color:#c7d2fe}
+  .role-rev{background:#fae8ff;color:#86198f;border-color:#f5d0fe}
+  .chip{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 6px;border-radius:8px;background:var(--navy);color:#fff;font-size:13px;font-weight:900}
+  .chip-circuit{background:#047857}
+  .bar{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--green);border-radius:99px}
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .tabb{border:1px solid #cbd5e1;background:#fff;border-radius:12px;padding:9px 18px;font-size:14px;font-weight:800;cursor:pointer}
+  .tabb.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .toast{position:fixed;bottom:20px;inset-inline-start:20px;background:var(--navy);color:#fff;padding:14px 22px;border-radius:14px;font-size:14px;font-weight:800;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,0.25);display:none;max-width:80vw}
+  .toast.err{background:#be123c}
+  .empty{border:2px dashed #cbd5e1;background:#f8fafc;border-radius:14px;padding:32px;text-align:center;color:#64748b;font-size:14px}
+  .fl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .fbtn{font-size:13px;font-weight:800;border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:7px 14px;cursor:pointer}
+  .fbtn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .muted{color:#64748b;font-size:13px}
+  .num{font-weight:900;font-size:15px}
+  .rep-head{text-align:center;margin-bottom:20px}
+  .rep-head h2{margin:0;font-size:22px;font-weight:900}
+  .rep-head p{margin:5px 0 0;font-size:14px;color:#475569;font-weight:700}
+  .rep-sec-title{font-size:16px;font-weight:900;margin:18px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .bordered th,.bordered td{border:1px solid #cbd5e1}
+  .tot td{font-weight:900;background:#f1f5f9;font-size:15px}
+  .notice-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;font-size:13px;color:#1e40af;margin-bottom:14px}
+  footer{max-width:1280px;margin:auto;padding:0 18px 28px;color:#94a3b8;font-size:12px}
+  @media print{
+    header,main>.none-when-print,.tabb,.fl,#rptFilters,.toast,.btn,.btn-sm,footer,.form-row{display:none!important}
+    body{background:#fff;font-size:12px}
+    main{padding:0}
+    section.tab{display:none!important}
+    #tab-reports{display:block!important}
+    .card{box-shadow:none;border:0;margin:0;padding:0}
+    table{font-size:12px}
+    th,td{padding:6px 8px}
+    tr{page-break-inside:avoid}
+    @page{size:A4 landscape;margin:10mm}
+  }
+</style>
+</head>
+<body>
+
+<header class="form-row">
+  <div class="hwrap">
+    <div class="brand">
+      <h1>⚖️ قسم النسخ والمراجعة</h1>
+      <p>نظام إدارة استلام ونسخ ومراجعة وتسليم أحكام الدوائر (8 دوائر — 8 جلسات شهرية)</p>
+    </div>
+    <div class="msel">
+      <select id="monthSel" class="sel" style="min-width:260px;font-weight:800;font-size:14px" onchange="setCurrentMonth(this.value)"></select>
+    </div>
+  </div>
+  <nav>
+    <button class="nbtn" data-tab="dashboard" onclick="showTab('dashboard')">📊 لوحة التحكم</button>
+    <button class="nbtn" data-tab="settings" onclick="showTab('settings')">⚙️ الإعدادات</button>
+    <button class="nbtn" data-tab="months" onclick="showTab('months')">🗓️ الجلسات (8 دوائر)</button>
+    <button class="nbtn" data-tab="manage" onclick="showTab('manage')">📥 مهام الجلسة</button>
+    <button class="nbtn" data-tab="copy" onclick="showTab('copy')">🖨️ النسخ</button>
+    <button class="nbtn" data-tab="review" onclick="showTab('review')">🔍 المراجعة</button>
+    <button class="nbtn" data-tab="deliver" onclick="showTab('deliver')">📦 التسليم</button>
+    <button class="nbtn" data-tab="reports" onclick="showTab('reports')">📑 التقارير</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-dashboard" class="tab"></section>
+  <section id="tab-settings" class="tab" style="display:none"></section>
+  <section id="tab-months" class="tab" style="display:none"></section>
+  <section id="tab-manage" class="tab" style="display:none"></section>
+  <section id="tab-copy" class="tab" style="display:none"></section>
+  <section id="tab-review" class="tab" style="display:none"></section>
+  <section id="tab-deliver" class="tab" style="display:none"></section>
+  <section id="tab-reports" class="tab" style="display:none"></section>
+</main>
+
+<footer>السجلات لكل مهمة: الدائرة — تاريخ جلسة الدائرة — رقم/حرف العضو — عدد الأحكام | البيانات تُحفظ محلياً في متصفحك</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== الحالة والتخزين ===================== */
+const AR_MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const ST={received:'مستلم',copying:'قيد النسخ',copied:'تم النسخ',reviewing:'قيد المراجعة',reviewed:'تمت المراجعة',delivered:'تم التسليم'};
+const STATUSES=Object.keys(ST);
+let db=null;
+let manageSub='receive';
+let logC=0, logS='';
+let copyistSel=0, reviewerSel=0;
+
+function load(){try{return JSON.parse(localStorage.getItem('ncr_db'))}catch(e){return null}}
+function save(){localStorage.setItem('ncr_db',JSON.stringify(db))}
+function nid(){return db.seq++}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',3000)}
+function nowIso(){return new Date().toISOString()}
+function fmtD(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('ar-EG-u-nu-latn',{day:'numeric',month:'short',year:'numeric'})}
+function fmtDT(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('ar-EG-u-nu-latn',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ar-EG-u-nu-latn',{hour:'2-digit',minute:'2-digit'})}
+function pad2(n){return String(n).padStart(2,'0')}
+
+/* ===================== وصول مساعد ===================== */
+function circuitById(id){return db.circuits.find(c=>c.id===id)}
+function memberById(id){for(const c of db.circuits){const m=c.members.find(m=>m.id===id);if(m)return m}return null}
+function empById(id){return db.employees.find(e=>e.id===id)}
+function monthById(id){return db.months.find(m=>m.id===id)}
+function monthLabel(m){if(!m)return'—';const base=AR_MONTHS[m.month-1]+' '+m.year;return m.sessionName?m.sessionName+' — '+base:base}
+function curMonth(){return monthById(db.currentMonthId)||db.months[db.months.length-1]}
+function monthRows(){const m=curMonth();return m?db.assignments.filter(a=>a.monthId===m.id):[]}
+function copyists(){return db.employees.filter(e=>e.role==='copyist')}
+function reviewers(){return db.employees.filter(e=>e.role==='reviewer')}
+function empSelect(list,name,sel){let h=`<select name="${name}" class="sel" style="max-width:210px" required><option value="" disabled ${sel?'':'selected'}>اختر…</option>`;for(const e of list)h+=`<option value="${e.id}">${esc(e.name)}</option>`;return h+'</select>'}
+
+/* ضمان وجود جلسات الـ 8 دوائر لكل شهر مع تواريخها المخصصة */
+function ensureCircuitSessions(m){
+  if(!m.circuitSessions)m.circuitSessions=[];
+  for(let i=0;i<db.circuits.length;i++){
+    const c=db.circuits[i];
+    let cs=m.circuitSessions.find(s=>s.circuitId===c.id);
+    if(!cs){
+      // توزيع افتراضي للتواريخ المخصصة على مدار الشهر (مثال: يوم 2، 5، 8، 11 ...)
+      const day=Math.min(2+(i*3),28);
+      const defaultDate=`${m.year}-${pad2(m.month)}-${pad2(day)}`;
+      cs={circuitId:c.id,date:defaultDate,status:'open',note:''};
+      m.circuitSessions.push(cs);
+    }
+  }
+  return m.circuitSessions;
+}
+
+function getCircuitSession(monthId,circuitId){
+  const m=monthById(monthId);
+  if(!m)return null;
+  ensureCircuitSessions(m);
+  return m.circuitSessions.find(s=>s.circuitId===circuitId)||null;
+}
+
+/* ===================== التهيئة التجريبية ===================== */
+function seedDemo(){
+  if(db.circuits.length){toast('البيانات التجريبية موجودة بالفعل',true);return}
+  const names=['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة'];
+  const cids=[];
+  for(let i=0;i<8;i++){const id=nid();cids.push(id);db.circuits.push({id,number:i+1,name:'الدائرة '+names[i],members:[]})}
+  for(const cid of cids){for(const code of['أ','ب','ج']){db.circuits.find(c=>c.id===cid).members.push({id:nid(),code,name:'القاضي ('+code+')'})}}
+  const copyIds=[],revIds=[];
+  for(const n of['أحمد محمود','سارة عبد الله','محمد حسن']){const id=nid();copyIds.push(id);db.employees.push({id,name:n,role:'copyist'})}
+  for(const n of['خالد إبراهيم','فاطمة علي']){const id=nid();revIds.push(id);db.employees.push({id,name:n,role:'reviewer'})}
+  const now=new Date();const cy=now.getFullYear(),cm=now.getMonth()+1;
+  const prev=new Date(cy,now.getMonth()-1,1);
+  const prevM={id:nid(),year:prev.getFullYear(),month:prev.getMonth()+1,sessionName:'جلسة '+AR_MONTHS[prev.getMonth()],status:'closed',circuitSessions:[]};
+  const curM={id:nid(),year:cy,month:cm,sessionName:'جلسة '+AR_MONTHS[cm-1],status:'open',circuitSessions:[]};
+
+  // إعداد 8 جلسات بتواريخ مخصصة لكل دائرة
+  const days=[2,5,7,10,12,15,18,21];
+  for(let i=0;i<8;i++){
+    const cid=cids[i];
+    prevM.circuitSessions.push({circuitId:cid,date:`${prevM.year}-${pad2(prevM.month)}-${pad2(days[i])}`,status:'closed',note:''});
+    curM.circuitSessions.push({circuitId:cid,date:`${curM.year}-${pad2(curM.month)}-${pad2(days[i])}`,status:'open',note:''});
+  }
+
+  db.months.push(prevM,curM);
+  const rnd=n=>Math.floor(Math.random()*n);
+  function seed(mObj,mode){
+    let k=0;
+    for(const cid of cids){for(const mb of db.circuits.find(c=>c.id===cid).members){k++;
+      const cnt=3+rnd(6);let st='received',cpId=null,rvId=null,cpA=null,rvA=null,dA=null;
+      if(mode==='closed'){st='delivered';cpId=copyIds[k%3];rvId=revIds[k%2];cpA=nowIso();rvA=nowIso();dA=nowIso()}
+      else{const r=Math.random();st=r<.35?'received':r<.6?'copying':r<.75?'copied':r<.87?'reviewing':r<.96?'reviewed':'delivered';
+        if(st!=='received'){cpId=copyIds[k%3];if(st!=='copying'){cpA=nowIso();if(st==='reviewing'||st==='reviewed'||st==='delivered'){rvId=revIds[k%2];if(st==='reviewed'||st==='delivered'){rvA=nowIso();if(st==='delivered')dA=nowIso()}}}}}
+      db.assignments.push({id:nid(),monthId:mObj.id,circuitId:cid,memberId:mb.id,count:cnt,status:st,copyistId:cpId,copiedAt:cpA,reviewerId:rvId,reviewedAt:rvA,deliveredAt:dA});
+    }}
+  }
+  seed(prevM,'closed');seed(curM,'open');
+  db.currentMonthId=curM.id;save();renderAll();
+  toast('تمت التهيئة: 8 دوائر + 8 جلسات بتواريخ مخصصة + أعضاء + موظفون');
+}
+
+/* ===================== تنقل الشاشات ===================== */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(s=>s.style.display='none');
+  document.getElementById('tab-'+name).style.display='block';
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
+  renderTab(name);
+}
+function renderTab(name){
+  if(name==='dashboard')renderDashboard();
+  else if(name==='settings')renderSettings();
+  else if(name==='months')renderMonths();
+  else if(name==='manage')renderManage();
+  else if(name==='copy')renderCopy();
+  else if(name==='review')renderReview();
+  else if(name==='deliver')renderDeliver();
+  else if(name==='reports')renderReportsForm();
+}
+function renderAll(){renderMonthSelect();const cur=document.querySelector('.nbtn.on');renderTab(cur?cur.dataset.tab:'dashboard')}
+function renderMonthSelect(){
+  const sel=document.getElementById('monthSel');
+  const sorted=[...db.months].sort((a,b)=>(b.year-a.year)||(b.month-a.month));
+  sel.innerHTML=sorted.length?sorted.map(m=>`<option value="${m.id}" ${m.id===db.currentMonthId?'selected':''}>🗓️ ${esc(monthLabel(m))}${m.status==='closed'?' (مغلقة)':''}</option>`).join(''):'<option value="">— لا توجد جلسات —</option>';
+}
+function setCurrentMonth(v){const id=Number(v);if(db.months.some(m=>m.id===id)){db.currentMonthId=id;save();renderAll()}}
+
+/* ===================== لوحة التحكم ===================== */
+function renderDashboard(){
+  const el=document.getElementById('tab-dashboard');
+  const m=curMonth();
+  if(!m){el.innerHTML=`<div class="card"><p style="text-align:center;padding:24px">لا توجد جلسات شهرية بعد. من تبويب <b>الجلسات</b> أضف جلسة، أو اضغط <b>تهيئة بيانات تجريبية</b>.</p></div>`;return}
+  ensureCircuitSessions(m);
+  const rows=monthRows();
+  const sum=arr=>arr.reduce((a,r)=>a+r.count,0);
+  const by=st=>rows.filter(r=>r.status===st);
+  const del=by('delivered');
+  const total=sum(rows),pct=total?Math.round(sum(del)/total*100):0;
+  let h=`<div class="none-when-print">`;
+  h+=`<div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">لوحة التحكم</h2><span class="muted">الجلسة الشهرية: <b style="color:#0f172a;font-size:16px">${esc(monthLabel(m))}</b> (${m.status==='open'?'مفتوحة':'مغلقة'})</span>
+      ${db.circuits.length===0?'<button class="btn btn-dark btn-sm" onclick="seedDemo()">⚡ تهيئة بيانات تجريبية</button>':''}</div>`;
+  h+=`<div class="stats">
+    <div class="stat"><span>إجمالي المهام</span><b>${rows.length}</b><small>${total} حكم</small></div>
+    <div class="stat"><span>مستلمة (غير موزعة)</span><b>${by('received').length}</b><small>${sum(by('received'))} حكم</small></div>
+    <div class="stat"><span>قيد النسخ</span><b>${by('copying').length}</b><small>${sum(by('copying'))} حكم</small></div>
+    <div class="stat"><span>تم النسخ</span><b>${by('copied').length}</b><small>${sum(by('copied'))} حكم</small></div>
+    <div class="stat"><span>مراجعة (قيد/تمت)</span><b>${by('reviewing').length+by('reviewed').length}</b><small>${sum(by('reviewing'))+sum(by('reviewed'))} حكم</small></div>
+    <div class="stat"><span>تم التسليم</span><b>${del.length}</b><small>${sum(del)} حكم — ${pct}%</small></div></div>`;
+  h+=`<div class="card"><label style="font-size:14px;font-weight:800">تقدم إتمام التسليم للسكرتارية لهذا الشهر</label><div class="bar" style="margin-top:6px"><i style="width:${pct}%"></i></div><div class="muted" style="margin-top:6px;font-weight:800">${sum(del)} / ${total} حكم (${pct}%)</div></div>`;
+
+  /* جدول جلسات الدوائر الـ 8 مع تواريخها وإنجازها */
+  h+=`<div class="card"><h3>متابعة جلسات الـ 8 دوائر في هذا الشهر</h3>
+  <table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>حالة جلسة الدائرة</th><th>المهام</th><th>عدد الأحكام</th><th>تم تسليمها</th><th>نسبة الإنجاز</th></tr>`;
+  for(const c of db.circuits){
+    const cs=getCircuitSession(m.id,c.id);
+    const rs=rows.filter(r=>r.circuitId===c.id),t=sum(rs),d=sum(rs.filter(r=>r.status==='delivered')),p=t?Math.round(d/t*100):0;
+    h+=`<tr>
+      <td><span class="chip chip-circuit">${c.number}</span> <b>${esc(c.name)}</b></td>
+      <td><span class="badge" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd;font-size:13px">📅 ${cs?.date ? fmtD(cs.date) : 'غير محدد'}</span></td>
+      <td><span class="badge ${cs?.status==='open'?'st-delivered':'st-received'}">${cs?.status==='open'?'جلسة مفتوحة':'جلسة مغلقة'}</span></td>
+      <td>${rs.length}</td>
+      <td class="num">${t}</td>
+      <td style="color:var(--green);font-weight:900;font-size:15px">${d}</td>
+      <td><div class="bar" style="width:110px;display:inline-block;vertical-align:middle"><i style="width:${p}%"></i></div> <span class="muted" style="font-weight:800">${p}%</span></td>
+    </tr>`;
+  }
+  if(!db.circuits.length)h+=`<tr><td colspan="7" class="muted" style="text-align:center;padding:20px">لا توجد دوائر بعد</td></tr>`;
+  h+=`</table></div>`;
+
+  /* عبء الموظفين */
+  h+=`<div class="grid2"><div class="card"><h3>عبء عمل موظفي النسخ</h3><table><tr><th>الناسخ</th><th>المكلف به</th><th>أنجز منه</th></tr>`;
+  for(const e of copyists()){const rs=rows.filter(r=>r.copyistId===e.id);const d=sum(rs.filter(r=>['copied','reviewing','reviewed','delivered'].includes(r.status)));h+=`<tr><td><b>${esc(e.name)}</b></td><td class="num">${sum(rs)} حكم</td><td style="color:var(--green);font-weight:900" class="num">${d}</td></tr>`}
+  h+=copyists().length?'':'<tr><td colspan="3" class="muted" style="text-align:center">لا يوجد موظفو نسخ</td></tr>';
+  h+=`</table></div><div class="card"><h3>عبء عمل موظفي المراجعة</h3><table><tr><th>المراجع</th><th>المكلف به</th><th>أنجز منه</th></tr>`;
+  for(const e of reviewers()){const rs=rows.filter(r=>r.reviewerId===e.id);const d=sum(rs.filter(r=>['reviewed','delivered'].includes(r.status)));h+=`<tr><td><b>${esc(e.name)}</b></td><td class="num">${sum(rs)} حكم</td><td style="color:var(--green);font-weight:900" class="num">${d}</td></tr>`}
+  h+=reviewers().length?'':'<tr><td colspan="3" class="muted" style="text-align:center">لا يوجد موظفو مراجعة</td></tr>';
+  h+=`</table></div></div></div>`;
+  el.innerHTML=h;
+}
+
+/* ===================== الإعدادات ===================== */
+function renderSettings(){
+  const el=document.getElementById('tab-settings');
+  let h=`<div class="none-when-print"><div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">الإعدادات</h2><span class="muted">تسمية الدوائر — إضافة الأعضاء — إضافة الموظفين</span></div>`;
+  /* الموظفون */
+  h+=`<div class="card"><h3>👥 الموظفون (نسخ / مراجعة)</h3>
+  <form class="row form-row" onsubmit="addEmployee(event)">
+    <div><label>اسم الموظف</label><input name="name" class="inp" required placeholder="مثال: أحمد محمود"></div>
+    <div><label>الوظيفة</label><select name="role" class="sel"><option value="copyist">ناسخ</option><option value="reviewer">مراجع</option></select></div>
+    <div style="flex:0"><button class="btn">+ إضافة موظف</button></div>
+  </form>
+  <table style="margin-top:12px"><tr><th>الاسم</th><th>الوظيفة</th><th>إجراء</th></tr>`;
+  for(const e of db.employees){
+    h+=`<tr><td><b>${esc(e.name)}</b></td><td><span class="badge ${e.role==='copyist'?'role-copy':'role-rev'}">${e.role==='copyist'?'ناسخ':'مراجع'}</span></td>
+    <td><button class="btn btn-danger btn-sm" onclick="delEmployee(${e.id})">حذف</button></td></tr>`;
+  }
+  h+=db.employees.length?'':'<tr><td colspan="3" class="muted" style="text-align:center">لا يوجد موظفون بعد</td></tr>';
+  h+=`</table></div>`;
+
+  /* دائرة جديدة */
+  h+=`<div class="card"><h3>⚖️ إضافة دائرة جديدة</h3>
+  <form class="row form-row" onsubmit="addCircuit(event)">
+    <div style="max-width:130px"><label>رقم الدائرة</label><input name="number" type="number" min="1" class="inp" required placeholder="1"></div>
+    <div><label>اسم الدائرة</label><input name="name" class="inp" required placeholder="الدائرة الأولى"></div>
+    <div style="flex:0"><button class="btn">+ إضافة الدائرة</button></div>
+  </form>
+  ${db.circuits.length===0?'<button class="btn btn-dark" style="margin-top:14px" onclick="seedDemo()">⚡ تهيئة بيانات تجريبية (8 دوائر كاملة)</button>':''}
+  </div>`;
+
+  /* الدوائر وأعضاؤها */
+  h+=`<div class="grid2">`;
+  for(const c of db.circuits){
+    h+=`<div class="card"><h3 style="display:flex;align-items:center;gap:10px">
+      <span class="chip chip-circuit">${c.number}</span>
+      <input class="inp" style="max-width:220px;font-weight:900" value="${esc(c.name)}" id="cn${c.id}">
+      <button class="btn btn-dark btn-sm" onclick="renameCircuit(${c.id})">حفظ الاسم</button>
+      <button class="btn btn-danger btn-sm" style="margin-inline-start:auto" onclick="delCircuit(${c.id})">حذف</button>
+    </h3>
+    <table><tr><th>رقم/حرف العضو</th><th>الاسم</th><th>إجراء</th></tr>`;
+    for(const mb of c.members){
+      h+=`<tr><td><span class="chip">${esc(mb.code)}</span></td><td><b>${esc(mb.name)}</b></td>
+      <td><button class="btn btn-danger btn-sm" onclick="delMember(${mb.id})">حذف</button></td></tr>`;
+    }
+    h+=c.members.length?'':'<tr><td colspan="3" class="muted" style="text-align:center">لا يوجد أعضاء في هذه الدائرة بعد</td></tr>';
+    h+=`</table>
+    <form class="row form-row" style="margin-top:12px;border-top:1px solid #f1f5f9;padding-top:12px" onsubmit="addMember(event,${c.id})">
+      <div style="max-width:120px"><label>رقم/حرف العضو</label><input name="code" class="inp" required placeholder="أ أو 1"></div>
+      <div><label>اسم العضو</label><input name="name" class="inp" required placeholder="القاضي (أ)"></div>
+      <div style="flex:0"><button class="btn btn-ghost">+ إضافة عضو</button></div>
+    </form></div>`;
+  }
+  h+=`</div>`;
+
+  /* النسخ الاحتياطي */
+  h+=`<div class="card"><h3>🗄️ النسخ الاحتياطي للبيانات</h3>
+  <div class="row form-row">
+    <div style="flex:0"><button class="btn btn-ghost" onclick="exportJson()">⬇️ تصدير نسخة احتياطية (ملف JSON)</button></div>
+    <div style="flex:0"><label class="btn btn-ghost" style="cursor:pointer;margin:0">⬆️ استيراد نسخة احتياطية<input type="file" accept=".json" style="display:none" onchange="importJson(this)"></label></div>
+    <div style="flex:0"><button class="btn btn-danger" onclick="wipeAll()">🗑️ مسح كل البيانات</button></div>
+    <div class="muted" style="flex-basis:100%">تُحفظ البيانات في متصفحك الحالي. عند الانتقال لجهاز آخر، قم بتصدير النسخة الاحتياطية واستيرادها هناك.</div>
+  </div></div></div>`;
+  el.innerHTML=h;
+}
+
+function addCircuit(ev){ev.preventDefault();const f=ev.target;const number=Number(f.number.value);const name=f.name.value.trim();
+  if(!number||number<1){toast('رقم الدائرة غير صالح',true);return}
+  if(db.circuits.some(c=>c.number===number)){toast('رقم الدائرة مستخدم من قبل',true);return}
+  db.circuits.push({id:nid(),number,name,members:[]});db.circuits.sort((a,b)=>a.number-b.number);save();renderAll();toast('تمت إضافة '+name)}
+function renameCircuit(id){const c=circuitById(id);const v=document.getElementById('cn'+id).value.trim();if(!v){toast('الاسم مطلوب',true);return}c.name=v;save();renderAll();toast('تم تغيير اسم الدائرة')}
+function delCircuit(id){const c=circuitById(id);if(db.assignments.some(a=>a.circuitId===id)){toast('لا يمكن حذف دائرة مرتبط بها مهام',true);return}
+  if(!confirm('حذف '+c.name+' وأعضاؤها؟'))return;db.circuits=db.circuits.filter(x=>x.id!==id);save();renderAll();toast('تم حذف الدائرة')}
+function addMember(ev,cid){ev.preventDefault();const f=ev.target;const c=circuitById(cid);const code=f.code.value.trim(),name=f.name.value.trim();
+  if(c.members.some(m=>m.code===code)){toast('رقم/حرف العضو مستخدم في هذه الدائرة',true);return}
+  c.members.push({id:nid(),code,name});save();renderAll();toast('تمت إضافة العضو '+name)}
+function delMember(id){if(db.assignments.some(a=>a.memberId===id)){toast('لا يمكن حذف عضو مرتبط بمهام',true);return}
+  for(const c of db.circuits){c.members=c.members.filter(m=>m.id!==id)}save();renderAll();toast('تم حذف العضو')}
+function addEmployee(ev){ev.preventDefault();const f=ev.target;const name=f.name.value.trim();if(!name)return;
+  db.employees.push({id:nid(),name,role:f.role.value});save();renderAll();toast('تمت إضافة الموظف '+name)}
+function delEmployee(id){for(const a of db.assignments){if(a.copyistId===id)a.copyistId=null;if(a.reviewerId===id)a.reviewerId=null}
+  db.employees=db.employees.filter(x=>x.id!==id);if(copyistSel===id)copyistSel=0;if(reviewerSel===id)reviewerSel=0;save();renderAll();toast('تم حذف الموظف')}
+function exportJson(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='نسخة-احتياطية-قسم-النسخ-والمراجعة.json';a.click();toast('تم تصدير النسخة الاحتياطية')}
+function importJson(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result);if(!data||!Array.isArray(data.circuits))throw 0;db=data;if(!db.seq)db.seq=1;save();renderAll();toast('تم استيراد النسخة بنجاح')}catch(e){toast('ملف غير صالح',true)}};r.readAsText(file)}
+function wipeAll(){if(!confirm('سيتم مسح كل البيانات نهائياً! هل أنت متأكد؟'))return;localStorage.removeItem('ncr_db');init();toast('تم مسح جميع البيانات')}
+
+/* ===================== الجلسات (8 دوائر بتواريخ مخصصة) ===================== */
+function renderMonths(){
+  const el=document.getElementById('tab-months');
+  const now=new Date();
+  const m=curMonth();
+  let h=`<div class="none-when-print"><div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">الجلسات الشهرية (8 دوائر)</h2><span class="muted">كل شهر يحتوي على 8 جلسات للـ 8 دوائر — كل دائرة لها تاريخ انعقاد مخصص</span></div>`;
+
+  h+=`<div class="notice-box">📌 <b>نظام توقيت الجلسات:</b> الدوائر الثمانية لا تبدأ في نفس اليوم، ولكن كل شهر يضم جلسة مخصصة لكل دائرة. يمكنك أدناه تحديد <b>تاريخ فتح الجلسة الخاص بكل دائرة</b> وإدارتها بشكل مستقل.</div>`;
+
+  /* جدول جلسات الدوائر الـ 8 للشهر الحالي */
+  if(m){
+    ensureCircuitSessions(m);
+    const rows=monthRows();
+    const sum=arr=>arr.reduce((a,r)=>a+r.count,0);
+    h+=`<div class="card" style="border:2px solid var(--green)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:10px">
+        <h3 style="margin:0;border:0;padding:0">📅 جلسات الـ 8 دوائر لشهر: <span style="color:var(--green)">${esc(monthLabel(m))}</span></h3>
+        <button class="btn btn-ghost btn-sm" onclick="toggleMonth(${m.id})">${m.status==='open'?'إغلاق الشهر كاملاً':'إعادة فتح الشهر'}</button>
+      </div>
+      <table>
+        <tr>
+          <th>الدائرة</th>
+          <th>تاريخ فتح جلسة الدائرة</th>
+          <th>الحالة</th>
+          <th>عدد الأحكام المستلمة</th>
+          <th>تم تسليمها</th>
+          <th>إجراءات الجلسة</th>
+        </tr>`;
+    for(const c of db.circuits){
+      const cs=getCircuitSession(m.id,c.id);
+      const rs=rows.filter(r=>r.circuitId===c.id);
+      const total=sum(rs),del=sum(rs.filter(r=>r.status==='delivered'));
+      h+=`<tr>
+        <td><span class="chip chip-circuit">${c.number}</span> <b>${esc(c.name)}</b></td>
+        <td>
+          <input type="date" class="inp" id="csDate_${m.id}_${c.id}" value="${cs?.date||''}" style="max-width:180px;font-weight:800;font-size:14px" onchange="updateCircuitSessionDate(${m.id},${c.id},this.value)">
+        </td>
+        <td>
+          <span class="badge ${cs?.status==='open'?'st-delivered':'st-received'}">${cs?.status==='open'?'جلسة مفتوحة':'جلسة مغلقة'}</span>
+        </td>
+        <td class="num">${total} حكم</td>
+        <td style="color:var(--green);font-weight:900" class="num">${del}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="toggleCircuitSessionStatus(${m.id},${c.id})">${cs?.status==='open'?'إغلاق الجلسة':'فتح الجلسة'}</button>
+            <button class="btn btn-sm" onclick="db.currentMonthId=${m.id};save();renderAll();manageSub='receive';showTab('manage')">📥 استلام أحكامها</button>
+          </div>
+        </td>
+      </tr>`;
+    }
+    h+=`</table></div>`;
+  }
+
+  h+=`<div class="grid2"><div class="card"><h3>➕ فتح شهر جديد (ينشئ تلقائياً 8 جلسات للـ 8 دوائر)</h3>
+  <form onsubmit="addMonth(event)">
+    <div class="row form-row">
+      <div><label>السنة</label><input name="year" type="number" min="2000" max="2100" class="inp" value="${now.getFullYear()}" required></div>
+      <div><label>الشهر</label><select name="month" class="sel">${AR_MONTHS.map((m,i)=>`<option value="${i+1}" ${i+1===now.getMonth()+1?'selected':''}>${m}</option>`).join('')}</select></div>
+    </div>
+    <div style="margin-top:12px"><label>اسم الجلسة (اختياري)</label><input name="sessionName" class="inp" placeholder="جلسة ${AR_MONTHS[now.getMonth()]} ${now.getFullYear()}"></div>
+    <button class="btn" style="width:100%;margin-top:14px">فتح الشهر وجلسات الدوائر</button>
+  </form></div>
+
+  <div class="card"><h3>قائمة الشهور المسجلة</h3><table><tr><th>الشهر</th><th>الحالة</th><th>المهام</th><th>الأحكام</th><th>إجراءات</th></tr>`;
+  const sorted=[...db.months].sort((a,b)=>(b.year-a.year)||(b.month-a.month));
+  for(const mItem of sorted){
+    const rs=db.assignments.filter(a=>a.monthId===mItem.id);const sum=arr=>arr.reduce((a,r)=>a+r.count,0);
+    h+=`<tr><td><b>${esc(monthLabel(mItem))}</b></td>
+    <td><span class="badge ${mItem.status==='open'?'st-delivered':'st-received'}">${mItem.status==='open'?'مفتوح':'مغلق'}</span></td>
+    <td>${rs.length}</td><td class="num">${sum(rs)}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="db.currentMonthId=${mItem.id};save();renderAll();renderMonths()">عرض جلسات الـ 8 دوائر</button></td></tr>`;
+  }
+  h+=sorted.length?'':'<tr><td colspan="5" class="muted" style="text-align:center;padding:16px">لا توجد شهور مسجلة</td></tr>';
+  h+=`</table></div></div></div>`;
+  el.innerHTML=h;
+}
+
+function updateCircuitSessionDate(monthId,circuitId,newDate){
+  const m=monthById(monthId);
+  if(!m)return;
+  const cs=getCircuitSession(monthId,circuitId);
+  if(cs){
+    cs.date=newDate;
+    save();
+    toast(`تم حفظ تاريخ جلسة ${circuitById(circuitId).name}: ${fmtD(newDate)}`);
+  }
+}
+
+function toggleCircuitSessionStatus(monthId,circuitId){
+  const cs=getCircuitSession(monthId,circuitId);
+  if(cs){
+    cs.status=cs.status==='open'?'closed':'open';
+    save();
+    renderMonths();
+    toast(`جلسة ${circuitById(circuitId).name} أصبحت: ${cs.status==='open'?'مفتوحة':'مغلقة'}`);
+  }
+}
+
+function addMonth(ev){ev.preventDefault();const f=ev.target;const year=Number(f.year.value),month=Number(f.month.value);
+  if(db.months.some(m=>m.year===year&&m.month===month)){toast('يوجد جلسة لهذا الشهر بالفعل',true);return}
+  const sn=f.sessionName.value.trim()||null;
+  const id=nid();
+  const newM={id,year,month,sessionName:sn,status:'open',circuitSessions:[]};
+  // تهيئة 8 جلسات للـ 8 دوائر
+  for(let i=0;i<db.circuits.length;i++){
+    const c=db.circuits[i];
+    const day=Math.min(2+(i*3),28);
+    newM.circuitSessions.push({circuitId:c.id,date:`${year}-${pad2(month)}-${pad2(day)}`,status:'open',note:''});
+  }
+  db.months.push(newM);db.currentMonthId=id;save();renderAll();
+  toast('تم فتح شهر '+AR_MONTHS[month-1]+' '+year+' وتجهيز جلسات الـ 8 دوائر');
+}
+function toggleMonth(id){const m=monthById(id);m.status=m.status==='open'?'closed':'open';save();renderAll();toast(m.status==='open'?'تم فتح الجلسة':'تم إغلاق الجلسة')}
+
+/* ===================== مهام الجلسة ===================== */
+function renderManage(){
+  const el=document.getElementById('tab-manage');
+  const m=curMonth();
+  if(!m){el.innerHTML=`<div class="card"><p style="text-align:center;padding:24px">افتح جلسة شهرية أولاً من تبويب الجلسات</p></div>`;return}
+  ensureCircuitSessions(m);
+  let h=`<div class="none-when-print"><div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">${esc(monthLabel(m))} <span class="badge ${m.status==='open'?'st-delivered':'st-received'}">${m.status==='open'?'مفتوحة':'مغلقة'}</span></h2></div>`;
+  h+=`<div class="tabs">
+    <button class="tabb ${manageSub==='receive'?'on':''}" onclick="manageSub='receive';renderManage()">📥 استلام المهام من الدوائر</button>
+    <button class="tabb ${manageSub==='assign'?'on':''}" onclick="manageSub='assign';renderManage()">🧑‍💻 توزيع النسخ على الموظفين</button>
+    <button class="tabb ${manageSub==='log'?'on':''}" onclick="manageSub='log';renderManage()">📋 سجل الجلسة والمتابعة</button>
+  </div>`;
+  if(manageSub==='receive')h+=receiveHtml(m);
+  else if(manageSub==='assign')h+=assignHtml(m);
+  else h+=logHtml(m);
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+
+function receiveHtml(m){
+  const rows=monthRows();
+  let h=`<div class="card"><h3>استلام أحكام لعضو واحد</h3>
+  <form class="row form-row" onsubmit="receiveOne(event)">
+    <div><label>العضو (حسب الدائرة وتاريخ جلستها)</label><select name="memberId" class="sel" required><option value="" disabled selected>اختر الدائرة والعضو…</option>`;
+  for(const c of db.circuits){
+    if(!c.members.length)continue;
+    const cs=getCircuitSession(m.id,c.id);
+    const dateStr=cs?.date?` [جلسة: ${fmtD(cs.date)}]`:'';
+    h+=`<optgroup label="${esc(c.name)}${dateStr}">`;
+    for(const mb of c.members)h+=`<option value="${mb.id}">العضو ${esc(mb.code)} — ${esc(mb.name)}</option>`;
+    h+=`</optgroup>`;
+  }
+  h+=`</select></div>
+    <div style="max-width:160px"><label>عدد الأحكام المستلمة</label><input name="count" type="number" min="1" class="inp" required placeholder="مثال: 12"></div>
+    <div style="flex:0"><button class="btn">استلام</button></div>
+  </form>
+  <p class="muted" style="margin-top:8px">إذا كان العضو مسجلاً بالفعل في هذه الجلسة ستُضاف الأعداد تلقائياً إلى إجماليه الحالي.</p></div>`;
+
+  h+=`<div class="grid2">`;
+  for(const c of db.circuits){
+    const cs=getCircuitSession(m.id,c.id);
+    h+=`<div class="card">
+      <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span><span class="chip chip-circuit">${c.number}</span> استلام ${esc(c.name)}</span>
+        <span class="badge" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd;font-size:12px">📅 الجلسة: ${cs?.date?fmtD(cs.date):'غير محدد'}</span>
+      </h3>`;
+    if(!c.members.length){h+=`<p class="muted">أضف أعضاء لهذه الدائرة من تبويب الإعدادات أولاً</p>`}
+    else{
+      h+=`<form onsubmit="receiveCircuit(event,${c.id})"><div class="row form-row">`;
+      for(const mb of c.members){
+        const ex=rows.find(r=>r.memberId===mb.id);
+        h+=`<div style="max-width:160px"><label>العضو ${esc(mb.code)} ${ex?`<span class="muted">(حالي: ${ex.count})</span>`:''}</label><input name="cnt_${mb.id}" type="number" min="0" class="inp" placeholder="0"></div>`;
+      }
+      h+=`</div><button class="btn btn-dark" style="margin-top:12px">استلام أعداد الدائرة</button></form>`;
+    }
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function receiveOne(ev){ev.preventDefault();const f=ev.target;const mid=Number(f.memberId.value),cnt=Number(f.count.value);receiveAdd(mid,cnt)}
+function receiveAdd(mid,cnt){
+  const m=curMonth();if(!m)return;
+  if(!cnt||cnt<1){toast('عدد الأحكام غير صالح',true);return}
+  const mb=memberById(mid);if(!mb){toast('العضو غير موجود',true);return}
+  const cid=db.circuits.find(c=>c.members.some(x=>x.id===mid)).id;
+  const ex=db.assignments.find(a=>a.monthId===m.id&&a.memberId===mid);
+  if(ex){ex.count+=cnt;toast(`تمت الإضافة — إجمالي العضو ${mb.code}: ${ex.count} حكم`)}
+  else{db.assignments.push({id:nid(),monthId:m.id,circuitId:cid,memberId:mid,count:cnt,status:'received',copyistId:null,copiedAt:null,reviewerId:null,reviewedAt:null,deliveredAt:null});toast(`تم استلام ${cnt} حكم للعضو ${mb.code}`)}
+  save();renderAll();
+}
+function receiveCircuit(ev,cid){ev.preventDefault();const f=ev.target;const c=circuitById(cid);let got=0;
+  for(const mb of c.members){const v=Number(f['cnt_'+mb.id].value)||0;if(v>0){const m=curMonth();const ex=db.assignments.find(a=>a.monthId===m.id&&a.memberId===mb.id);
+    if(ex)ex.count+=v;else db.assignments.push({id:nid(),monthId:m.id,circuitId:cid,memberId:mb.id,count:v,status:'received',copyistId:null,copiedAt:null,reviewerId:null,reviewedAt:null,deliveredAt:null});got+=v}}
+  if(got>0){save();renderAll();toast(`تم استلام ${got} حكم من ${c.name}`)}else toast('لم يتم إدخال أي عدد صحيح',true)}
+
+function assignHtml(m){
+  const rows=monthRows().filter(r=>r.status==='received'||r.status==='copying');
+  const list=copyists();
+  if(!list.length)return `<div class="card"><div class="empty">لا يوجد موظفو نسخ — أضفهم من الإعدادات أولاً</div></div>`;
+  if(!rows.length)return `<div class="card"><div class="empty">لا توجد مهام بانتظار توزيع النسخ في هذه الجلسة</div></div>`;
+  let h=`<div class="card"><h3>توزيع كل المهام المعلقة في الجلسة (${rows.length} مهمة / ${rows.reduce((a,r)=>a+r.count,0)} حكم)</h3>
+  <form class="row form-row" onsubmit="assignCopyAll(event)"><div>${empSelect(list,'copyistId')}<input type="hidden" name="all" value="1"></div><div style="flex:0"><button class="btn">توزيع الكل للناسخ</button></div></form></div>`;
+  for(const c of db.circuits){
+    const rs=rows.filter(r=>r.circuitId===c.id);if(!rs.length)continue;
+    const cs=getCircuitSession(m.id,c.id);
+    h+=`<div class="card"><h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <span><span class="chip chip-circuit">${c.number}</span> ${esc(c.name)} <span class="badge" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd">📅 ${cs?.date?fmtD(cs.date):''}</span> — ${rs.length} مهمة (${rs.reduce((a,r)=>a+r.count,0)} حكم)</span>
+      <form style="display:inline-flex;gap:8px" onsubmit="assignCopyCircuit(event,${c.id})">${empSelect(list,'copyistId')}<button class="btn btn-sm">توزيع كل مهام الدائرة</button></form></h3>
+      <table><tr><th>رقم العضو</th><th>الاسم</th><th>الأحكام</th><th>الحالة</th><th>الناسخ الحالي</th><th>توزيع</th><th>إلغاء</th></tr>`;
+    for(const r of rs){
+      const mb=memberById(r.memberId);
+      h+=`<tr><td><span class="chip">${esc(mb.code)}</span></td><td><b>${esc(mb.name)}</b></td><td class="num">${r.count}</td>
+      <td><span class="badge st-${r.status}">${ST[r.status]}</span></td><td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td>
+      <td><form style="display:flex;gap:6px" onsubmit="assignCopy(event,${r.id})">${empSelect(list,'copyistId')}<button class="btn btn-sm">توزيع</button></form></td>
+      <td>${r.status==='copying'?`<button class="btn btn-danger btn-sm" onclick="unassign(${r.id})">إلغاء</button>`:'—'}</td></tr>`;
+    }
+    h+=`</table></div>`;
+  }
+  return h;
+}
+function doAssignCopy(id,copyistId){
+  const m=curMonth();const r=db.assignments.find(a=>a.id===id&&a.monthId===m.id);const e=empById(copyistId);
+  if(!r||!e||e.role!=='copyist'){toast('اختر ناسخاً',true);return}
+  if(['copied','reviewing','reviewed','delivered'].includes(r.status)){toast('هذه المهمة تجاوزت مرحلة النسخ',true);return}
+  r.copyistId=copyistId;r.status='copying';r.copiedAt=null;save();
+  toast(`تم توزيع ${r.count} حكم على ${e.name}`);
+}
+function assignCopy(ev,id){ev.preventDefault();doAssignCopy(id,Number(ev.target.copyistId.value));renderAll()}
+function assignCopyCircuit(ev,cid){ev.preventDefault();const cid2=Number(ev.target.copyistId.value);for(const r of monthRows().filter(r=>r.circuitId===cid&&(r.status==='received'||r.status==='copying'))){doAssignCopy(r.id,cid2)}renderAll()}
+function assignCopyAll(ev){ev.preventDefault();const eid=Number(ev.target.copyistId.value);for(const r of monthRows().filter(r=>r.status==='received'||r.status==='copying')){doAssignCopy(r.id,eid)}renderAll()}
+function unassign(id){const r=db.assignments.find(a=>a.id===id);if(!r||r.status!=='copying')return;r.status='received';r.copyistId=null;save();renderAll();toast('تم إلغاء التوزيع')}
+
+function logHtml(m){
+  let rows=monthRows();
+  if(logC)rows=rows.filter(r=>r.circuitId===logC);
+  if(logS)rows=rows.filter(r=>r.status===logS);
+  let h=`<div class="fl">
+    <span class="muted" style="font-weight:800">تصفية حسب الدائرة:</span>
+    <button class="fbtn ${!logC?'on':''}" onclick="logC=0;renderManage()">كل الدوائر</button>`;
+  for(const c of db.circuits)h+=`<button class="fbtn ${logC===c.id?'on':''}" onclick="logC=${c.id};renderManage()">${esc(c.name)}</button>`;
+  h+=`</div><div class="fl"><span class="muted" style="font-weight:800">الحالة:</span><button class="fbtn ${!logS?'on':''}" onclick="logS='';renderManage()">كل الحالات</button>`;
+  for(const s of STATUSES)h+=`<button class="fbtn ${logS===s?'on':''}" onclick="logS='${s}';renderManage()">${ST[s]}</button>`;
+  h+=`</div>`;
+  h+=`<div class="card"><h3>سجل مهام الجلسة — ${rows.length} مهمة (${rows.reduce((a,r)=>a+r.count,0)} حكم)</h3>`;
+  if(!rows.length){h+=`<div class="empty">لا توجد مهام مطابقة</div>`}
+  else{
+    h+=`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>رقم العضو</th><th>الاسم</th><th>الأحكام</th><th>الحالة</th><th>الناسخ</th><th>المراجع</th><th>النسخ</th><th>المراجعة</th><th>التسليم</th><th>تعديل العدد</th><th></th></tr>`;
+    for(const r of rows){
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      h+=`<tr>
+        <td><b>${esc(c?.name||'')}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb?.code||'')}</span></td>
+        <td>${esc(mb?.name||'')}</td>
+        <td class="num">${r.count}</td>
+        <td><span class="badge st-${r.status}">${ST[r.status]}</span></td>
+        <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td>
+        <td>${r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'}</td>
+        <td class="muted">${fmtDT(r.copiedAt)}</td>
+        <td class="muted">${fmtDT(r.reviewedAt)}</td>
+        <td class="muted">${fmtDT(r.deliveredAt)}</td>
+        <td><form style="display:flex;gap:4px" onsubmit="updCount(event,${r.id})"><input name="count" type="number" min="0" class="inp" style="width:75px;padding:5px 8px;font-size:13px" value="${r.count}"><button class="btn btn-ghost btn-sm">حفظ</button></form></td>
+        <td>${r.status==='received'?`<button class="btn btn-danger btn-sm" onclick="delAssign(${r.id})">حذف</button>`:''}</td>
+      </tr>`;
+    }
+    h+=`</table>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function updCount(ev,id){ev.preventDefault();const r=db.assignments.find(a=>a.id===id);r.count=Number(ev.target.count.value)||0;save();renderAll();toast('تم تعديل العدد')}
+function delAssign(id){if(!confirm('حذف هذه المهمة؟'))return;db.assignments=db.assignments.filter(a=>a.id!==id);save();renderAll();toast('تم الحذف')}
+
+/* ===================== شاشة النسخ ===================== */
+function renderCopy(){
+  const el=document.getElementById('tab-copy');
+  const list=copyists();
+  if(!copyistSel&&list.length)copyistSel=list[0].id;
+  const m=curMonth();
+  let h=`<div class="none-when-print"><div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">شاشة النسخ</h2><span class="muted">متابعة إتمام النسخ للمهام الموزعة</span></div>`;
+  if(!list.length){el.innerHTML=h+`<div class="card"><div class="empty">لا يوجد موظفو نسخ — أضفهم من الإعدادات أولاً</div></div></div>`;return}
+  h+=`<div class="fl">`+list.map(e=>`<button class="fbtn ${copyistSel===e.id?'on':''}" onclick="copyistSel=${e.id};renderCopy()">🖨️ ${esc(e.name)}</button>`).join('')+`</div>`;
+  const rows=monthRows().filter(r=>r.copyistId===copyistSel);
+  const todo=rows.filter(r=>r.status==='copying'),hist=rows.filter(r=>r.status!=='copying');
+  const sum=a=>a.reduce((x,r)=>x+r.count,0);
+  h+=`<div class="stats"><div class="stat"><span>المهام المسندة</span><b>${rows.length}</b><small>${sum(rows)} حكم</small></div>
+      <div class="stat"><span>قيد النسخ</span><b>${todo.length}</b><small>${sum(todo)} حكم</small></div>
+      <div class="stat"><span>تم نسخها</span><b>${hist.length}</b><small>${sum(hist)} حكم</small></div></div>`;
+  h+=`<div class="card"><h3>مهام قيد النسخ — ${esc(empById(copyistSel).name)}
+        ${todo.length?`<button class="btn btn-sm" style="float:left" onclick="copyDoneAll()">✔ إتمام نسخ الكل (${sum(todo)} حكم)</button>`:''}</h3>`;
+  h+=todo.length?`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>العضو</th><th>الأحكام</th><th>المراجع</th><th>إتمام النسخ</th></tr>`+
+    todo.map(r=>{
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      return `<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb.code)}</span> ${esc(mb.name)}</td>
+        <td class="num">${r.count}</td>
+        <td>${r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'}</td>
+        <td><button class="btn btn-sm" onclick="copyDone(${r.id})">✔ تم النسخ (${r.count})</button></td>
+      </tr>`}).join('')+`</table>`
+     :`<div class="empty">لا توجد مهام قيد النسخ لهذا الناسخ</div>`;
+  h+=`</div>`;
+  h+=`<div class="card"><h3>سجل ما تم نسخه</h3>`;
+  h+=hist.length?`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>العضو</th><th>الأحكام</th><th>الحالة</th><th>المراجع</th><th>تاريخ النسخ</th></tr>`+
+    hist.map(r=>{
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      return `<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb.code)}</span> ${esc(mb.name)}</td>
+        <td class="num">${r.count}</td>
+        <td><span class="badge st-${r.status}">${ST[r.status]}</span></td>
+        <td>${r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'}</td>
+        <td class="muted">${fmtDT(r.copiedAt)}</td>
+      </tr>`}).join('')+`</table>`
+     :`<div class="empty">لا يوجد سجل بعد</div>`;
+  h+=`</div></div>`;
+  el.innerHTML=h;
+}
+function copyDone(id){const r=db.assignments.find(a=>a.id===id);if(!r||r.status!=='copying')return;r.status='copied';r.copiedAt=nowIso();save();renderTab('copy');toast(`انتهى نسخ ${r.count} حكم`)}
+function copyDoneAll(){const rows=monthRows().filter(r=>r.copyistId===copyistSel&&r.status==='copying');for(const r of rows){r.status='copied';r.copiedAt=nowIso()}save();renderTab('copy');toast(`تم إتمام نسخ ${rows.length} مهمة`)}
+
+/* ===================== شاشة المراجعة ===================== */
+function renderReview(){
+  const el=document.getElementById('tab-review');
+  const list=reviewers();
+  if(!reviewerSel&&list.length)reviewerSel=list[0].id;
+  const m=curMonth();
+  const sum=a=>a.reduce((x,r)=>x+r.count,0);
+  let h=`<div class="none-when-print"><div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">شاشة المراجعة</h2><span class="muted">المراجع يعمل مع أكثر من ناسخ — وزع المهام المنسوخة وتابع الإتمام</span></div>`;
+  if(!list.length){el.innerHTML=h+`<div class="card"><div class="empty">لا يوجد موظفو مراجعة — أضفهم من الإعدادات أولاً</div></div></div>`;return}
+  h+=`<div class="fl">`+list.map(e=>`<button class="fbtn ${reviewerSel===e.id?'on':''}" onclick="reviewerSel=${e.id};renderReview()">🔍 ${esc(e.name)}</button>`).join('')+`</div>`;
+  const ready=monthRows().filter(r=>r.status==='copied');
+  const mine=monthRows().filter(r=>r.reviewerId===reviewerSel);
+  const inRev=mine.filter(r=>r.status==='reviewing'),done=mine.filter(r=>r.status==='reviewed');
+  h+=`<div class="stats"><div class="stat"><span>جاهزة للمراجعة</span><b>${ready.length}</b><small>${sum(ready)} حكم</small></div>
+      <div class="stat"><span>قيد المراجعة</span><b>${inRev.length}</b><small>${sum(inRev)} حكم</small></div>
+      <div class="stat"><span>تمت مراجعتها</span><b>${done.length}</b><small>${sum(done)} حكم</small></div></div>`;
+  /* جاهزة للمراجعة */
+  h+=`<div class="card"><h3>مهام تم نسخها وجاهزة للمراجعة
+        ${ready.length?`<form style="display:inline-flex;gap:8px;float:left" onsubmit="assignReviewAll(event)">${empSelect(list,'reviewerId')}<button class="btn btn-sm">توزيع الكل للمراجع</button></form>`:''}</h3>`;
+  h+=ready.length?`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>العضو</th><th>الأحكام</th><th>الناسخ</th><th>تاريخ النسخ</th><th>إسناد لمراجع</th></tr>`+
+    ready.map(r=>{
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      return `<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb.code)}</span> ${esc(mb.name)}</td>
+        <td class="num">${r.count}</td>
+        <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td>
+        <td class="muted">${fmtDT(r.copiedAt)}</td>
+        <td><form style="display:flex;gap:6px" onsubmit="assignReview(event,${r.id})">${empSelect(list,'reviewerId')}<button class="btn btn-sm">توزيع</button></form></td>
+      </tr>`}).join('')+`</table>`
+     :`<div class="empty">لا توجد مهام جاهزة للمراجعة حالياً</div>`;
+  h+=`</div>`;
+  /* قيد المراجعة */
+  h+=`<div class="card"><h3>مهام قيد المراجعة — ${esc(empById(reviewerSel).name)}
+        ${inRev.length?`<button class="btn btn-sm" style="float:left" onclick="reviewDoneAll()">✔ إتمام مراجعة الكل (${sum(inRev)} حكم)</button>`:''}</h3>`;
+  h+=inRev.length?`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>العضو</th><th>الأحكام</th><th>الناسخ</th><th>إتمام المراجعة</th></tr>`+
+    inRev.map(r=>{
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      return `<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb.code)}</span> ${esc(mb.name)}</td>
+        <td class="num">${r.count}</td>
+        <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td>
+        <td><button class="btn btn-sm" onclick="reviewDone(${r.id})">✔ تمت المراجعة (${r.count})</button></td>
+      </tr>`}).join('')+`</table>`
+     :`<div class="empty">لا توجد مهام قيد المراجعة لهذا المراجع</div>`;
+  h+=`</div>`;
+  /* تمت */
+  h+=`<div class="card"><h3>سجل ما تمت مراجعته (جاهز للتسليم للسكرتارية)</h3>`;
+  h+=done.length?`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>العضو</th><th>الأحكام</th><th>الناسخ</th><th>تاريخ المراجعة</th></tr>`+
+    done.map(r=>{
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      return `<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb.code)}</span> ${esc(mb.name)}</td>
+        <td class="num">${r.count}</td>
+        <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td>
+        <td class="muted">${fmtDT(r.reviewedAt)}</td>
+      </tr>`}).join('')+`</table>`
+     :`<div class="empty">لا يوجد سجل بعد</div>`;
+  h+=`</div></div>`;
+  el.innerHTML=h;
+}
+function doAssignReview(id,reviewerId){const m=curMonth();const r=db.assignments.find(a=>a.id===id&&a.monthId===m.id);const e=empById(reviewerId);
+  if(!r||!e||e.role!=='reviewer'){toast('اختر مراجعاً',true);return}
+  if(r.status!=='copied'&&r.status!=='reviewing'){toast('هذه المهمة غير جاهزة للمراجعة',true);return}
+  r.reviewerId=reviewerId;r.status='reviewing';r.reviewedAt=null}
+function assignReview(ev,id){ev.preventDefault();doAssignReview(id,Number(ev.target.reviewerId.value));save();renderReview();toast('تم التوزيع على المراجع')}
+function assignReviewAll(ev){ev.preventDefault();const rid=Number(ev.target.reviewerId.value);const e=empById(rid);if(!e){toast('اختر مراجعاً',true);return}
+  for(const r of monthRows().filter(r=>r.status==='copied'))doAssignReview(r.id,rid);save();renderReview();toast('تم توزيع الكل على '+e.name)}
+function reviewDone(id){const r=db.assignments.find(a=>a.id===id);if(!r||r.status!=='reviewing')return;r.status='reviewed';r.reviewedAt=nowIso();save();renderReview();toast(`تمت مراجعة ${r.count} حكم`)}
+function reviewDoneAll(){const rows=monthRows().filter(r=>r.reviewerId===reviewerSel&&r.status==='reviewing');for(const r of rows){r.status='reviewed';r.reviewedAt=nowIso()}save();renderReview();toast(`تمت مراجعة ${rows.length} مهمة`)}
+
+/* ===================== التسليم ===================== */
+function renderDeliver(){
+  const el=document.getElementById('tab-deliver');
+  const sum=a=>a.reduce((x,r)=>x+r.count,0);
+  const m=curMonth();
+  const all=monthRows();
+  const ready=all.filter(r=>r.status==='reviewed'),del=all.filter(r=>r.status==='delivered');
+  let h=`<div class="none-when-print"><div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">التسليم لسكرتارية الدوائر</h2><span class="muted">تسليم الأحكام التي تمت مراجعتها لسكرتارية كل دائرة</span></div>`;
+  h+=`<div class="stats"><div class="stat"><span>جاهزة للتسليم</span><b>${ready.length}</b><small>${sum(ready)} حكم</small></div>
+      <div class="stat"><span>تم تسليمها</span><b>${del.length}</b><small>${sum(del)} حكم</small></div>
+      <div class="stat"><span>إجمالي الجلسة</span><b>${all.length}</b><small>${sum(all)} حكم</small></div></div>`;
+  h+=`<div class="card"><h3>مهام تمت مراجعتها وجاهزة للتسليم
+        ${ready.length?`<button class="btn" style="float:left" onclick="deliverAll()">📦 تسليم كل المهام للسكرتارية (${sum(ready)} حكم)</button>`:''}</h3>`;
+  let found=false;
+  for(const c of db.circuits){
+    const rs=ready.filter(r=>r.circuitId===c.id);if(!rs.length)continue;found=true;
+    const cs=getCircuitSession(m.id,c.id);
+    h+=`<p class="rep-sec-title">
+          <span><span class="chip chip-circuit">${c.number}</span> ${esc(c.name)} <span class="badge" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd">📅 ${cs?.date?fmtD(cs.date):''}</span> — ${rs.length} مهمة (${sum(rs)} حكم)</span>
+          <button class="btn btn-dark btn-sm" onclick="deliverCircuit(${c.id})">تسليم كل مهام الدائرة</button>
+        </p>
+        <table><tr><th>رقم العضو</th><th>الاسم</th><th>الأحكام</th><th>الناسخ</th><th>المراجع</th><th>تاريخ المراجعة</th><th>تسليم</th></tr>`;
+    for(const r of rs){const mb=memberById(r.memberId);
+      h+=`<tr><td><span class="chip">${esc(mb.code)}</span></td><td><b>${esc(mb.name)}</b></td><td class="num">${r.count}</td>
+          <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td><td>${r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'}</td>
+          <td class="muted">${fmtDT(r.reviewedAt)}</td><td><button class="btn btn-sm" onclick="deliverRow(${r.id})">📦 تسليم (${r.count})</button></td></tr>`}
+    h+=`</table>`;
+  }
+  if(!found)h+=`<div class="empty">لا توجد مهام جاهزة للتسليم حالياً</div>`;
+  h+=`</div>`;
+  h+=`<div class="card"><h3>سجل ما تم تسليمه لسكرتارية الدوائر</h3>`;
+  h+=del.length?`<table><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>العضو</th><th>الأحكام</th><th>الناسخ</th><th>المراجع</th><th>تاريخ التسليم</th></tr>`+
+    del.map(r=>{
+      const mb=memberById(r.memberId),c=circuitById(r.circuitId);
+      const cs=getCircuitSession(m.id,r.circuitId);
+      return `<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td><span class="muted" style="font-weight:800">${cs?.date?fmtD(cs.date):'—'}</span></td>
+        <td><span class="chip">${esc(mb.code)}</span> ${esc(mb.name)}</td>
+        <td class="num">${r.count}</td>
+        <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td>
+        <td>${r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'}</td>
+        <td class="muted">${fmtDT(r.deliveredAt)}</td>
+      </tr>`}).join('')+`</table>`
+    :`<div class="empty">لم يتم تسليم أي مهام بعد في هذا الشهر</div>`;
+  h+=`</div></div>`;
+  el.innerHTML=h;
+}
+function doDeliver(id){const r=db.assignments.find(a=>a.id===id);if(!r||r.status!=='reviewed')return false;r.status='delivered';r.deliveredAt=nowIso();return true}
+function deliverRow(id){if(doDeliver(id)){save();renderDeliver();toast('تم التسليم للسكرتارية')}}
+function deliverCircuit(cid){let n=0;for(const r of monthRows().filter(r=>r.circuitId===cid))if(doDeliver(r.id))n++;save();renderDeliver();toast(`تم تسليم ${n} مهمة لسكرتارية الدائرة`)}
+function deliverAll(){let n=0;for(const r of monthRows())if(doDeliver(r.id))n++;save();renderDeliver();toast(`تم تسليم ${n} مهمة للسكرتارية`)}
+
+/* ===================== التقارير ===================== */
+function renderReportsForm(){
+  const el=document.getElementById('tab-reports');
+  let h=`<div class="fl"><h2 style="margin:0;font-size:22px;font-weight:900">التقارير (جاهزة للطباعة)</h2><button class="btn btn-dark" style="margin-inline-start:auto" onclick="window.print()">🖨️ طباعة التقرير</button></div>`;
+  h+=`<div class="card" id="rptFilters"><div class="row">
+    <div><label>نوع التقرير</label><select id="rptType" class="sel"><option value="circuit">تقرير دائرة</option><option value="employee">تقرير موظف</option><option value="matrix">سجل عدد الأحكام لكل عضو في كل دائرة</option></select></div>
+    <div><label>الدائرة</label><select id="rptCircuit" class="sel"><option value="0">كل الدوائر</option>${db.circuits.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+    <div><label>الموظف</label><select id="rptEmp" class="sel"><option value="0">— اختر موظفاً —</option>${db.employees.map(e=>`<option value="${e.id}">${esc(e.name)} (${e.role==='copyist'?'ناسخ':'مراجع'})</option>`).join('')}</select></div>
+    <div style="flex:0"><button class="btn" onclick="renderReport()">عرض التقرير</button></div>
+  </div></div>`;
+  h+=`<div class="card" id="reportArea"><div class="empty">اختر نوع التقرير واضغط «عرض التقرير»</div></div>`;
+  el.innerHTML=h;
+}
+function renderReport(){
+  const type=document.getElementById('rptType').value;
+  const cid=Number(document.getElementById('rptCircuit').value);
+  const eid=Number(document.getElementById('rptEmp').value);
+  const m=curMonth();
+  ensureCircuitSessions(m);
+  let rows=monthRows();
+  if(cid)rows=rows.filter(r=>r.circuitId===cid);
+  const sum=a=>a.reduce((x,r)=>x+r.count,0);
+  let title='';
+  if(type==='circuit')title=cid?('تقرير الدائرة: '+circuitById(cid).name):'تقرير كل الدوائر (8 جلسات)';
+  else if(type==='employee')title=eid?('تقرير الموظف: '+empById(eid).name+' ('+(empById(eid).role==='copyist'?'ناسخ':'مراجع')+')'):'— اختر موظفاً —';
+  else title='سجل عدد الأحكام لكل عضو في كل دائرة (الـ 8 دوائر)';
+  let h=`<div class="rep-head"><h2>المحكمة — قسم النسخ والمراجعة</h2><p style="font-size:16px;font-weight:900">${esc(title)}</p>
+         <p class="muted">الجلسة الشهرية: ${esc(monthLabel(m))} | تاريخ الطباعة: ${fmtD(nowIso())}</p></div>`;
+
+  if(type==='matrix'){
+    h+=`<table class="bordered"><tr><th>الدائرة</th><th>تاريخ الجلسة</th><th>رقم العضو</th><th>اسم العضو</th><th>عدد الأحكام المستلمة</th><th>تم تسليمها</th><th>قيد العمل</th></tr>`;
+    let g=0,gd=0;
+    const list=cid?db.circuits.filter(c=>c.id===cid):db.circuits;
+    for(const c of list){
+      const cs=getCircuitSession(m.id,c.id);
+      const cr=rows.filter(r=>r.circuitId===c.id);const t=sum(cr),d=sum(cr.filter(r=>r.status==='delivered'));g+=t;gd+=d;
+      c.members.forEach((mb,i)=>{
+        const r=cr.find(x=>x.memberId===mb.id);
+        h+=`<tr>${i===0?`<td rowspan="${Math.max(c.members.length,1)}" style="font-weight:900;background:#f8fafc;font-size:15px"><span class="chip chip-circuit">${c.number}</span> ${esc(c.name)}</td>
+        <td rowspan="${Math.max(c.members.length,1)}" style="font-weight:800;background:#f8fafc;font-size:13px">${cs?.date?fmtD(cs.date):'—'}</td>`:''}
+          <td><span class="chip">${esc(mb.code)}</span></td><td>${esc(mb.name)}</td><td class="num">${r?r.count:0}</td>
+          <td>${r&&r.status==='delivered'?r.count:0}</td><td>${r&&r.status!=='delivered'&&r.status!=='received'?r.count:(r&&r.status==='received'?r.count:0)}</td></tr>`;
+      });
+      h+=`<tr class="tot"><td colspan="4">إجمالي ${esc(c.name)}</td><td>${t}</td><td>${d}</td><td>${t-d}</td></tr>`;
+    }
+    h+=`<tr class="tot"><td colspan="4">الإجمالي العام</td><td>${g}</td><td>${gd}</td><td>${g-gd}</td></tr></table>`;
+  }
+
+  if(type==='circuit'){
+    const list=cid?db.circuits.filter(c=>c.id===cid):db.circuits;
+    let any=false;
+    for(const c of list){
+      const cs=getCircuitSession(m.id,c.id);
+      const cr=rows.filter(r=>r.circuitId===c.id);if(!cr.length)continue;any=true;
+      h+=`<div class="rep-sec-title">
+        <span><span class="chip chip-circuit">${c.number}</span> ${esc(c.name)} — (${cr.length} مهمة / ${sum(cr)} حكم)</span>
+        <span class="badge" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd;font-size:13px">📅 تاريخ جلسة الدائرة: ${cs?.date?fmtD(cs.date):'غير محدد'}</span>
+      </div>
+      <table class="bordered"><tr><th>رقم العضو</th><th>اسم العضو</th><th>عدد الأحكام</th><th>الناسخ</th><th>المراجع</th><th>الحالة</th><th>تاريخ النسخ</th><th>تاريخ المراجعة</th><th>تاريخ التسليم</th></tr>`;
+      for(const r of cr){const mb=memberById(r.memberId);
+        h+=`<tr><td><span class="chip">${esc(mb.code)}</span></td><td><b>${esc(mb.name)}</b></td><td class="num">${r.count}</td>
+        <td>${r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—'}</td><td>${r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'}</td>
+        <td><span class="badge st-${r.status}">${ST[r.status]}</span></td><td>${fmtDT(r.copiedAt)}</td><td>${fmtDT(r.reviewedAt)}</td><td>${fmtDT(r.deliveredAt)}</td></tr>`}
+      h+=`<tr class="tot"><td colspan="2">إجمالي ${esc(c.name)}</td><td>${sum(cr)}</td><td colspan="6"></td></tr></table>`;
+    }
+    if(!any)h+=`<div class="empty">لا توجد بيانات لهذه الدائرة في هذه الجلسة</div>`;
+  }
+
+  if(type==='employee'){
+    if(!eid){h+=`<div class="empty">اختر موظفاً من القائمة لعرض تفاصيل عمله في كل دائرة</div>`}
+    else{
+      const e=empById(eid);const isC=e.role==='copyist';
+      rows=rows.filter(r=>isC?r.copyistId===eid:r.reviewerId===eid);
+      h+=`<p style="font-size:15px;margin-bottom:14px">الوظيفة: <span class="badge ${isC?'role-copy':'role-rev'}">${isC?'ناسخ':'مراجع'}</span> — عدد المهام: <b>${rows.length}</b> — إجمالي الأحكام: <b style="color:var(--green);font-size:17px">${sum(rows)}</b> حكم</p>`;
+      let any=false;
+      for(const c of db.circuits){
+        const cs=getCircuitSession(m.id,c.id);
+        const cr=rows.filter(r=>r.circuitId===c.id);if(!cr.length)continue;any=true;
+        h+=`<div class="rep-sec-title">
+          <span><span class="chip chip-circuit">${c.number}</span> ${esc(c.name)} — (${cr.length} مهمة / ${sum(cr)} حكم)</span>
+          <span class="badge" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd;font-size:13px">📅 جلسة الدائرة: ${cs?.date?fmtD(cs.date):'—'}</span>
+        </div>
+        <table class="bordered"><tr><th>رقم العضو</th><th>اسم العضو</th><th>عدد الأحكام</th><th>${isC?'المراجع':'الناسخ'}</th><th>الحالة</th><th>${isC?'تاريخ النسخ':'تاريخ المراجعة'}</th><th>تاريخ التسليم</th></tr>`;
+        for(const r of cr){const mb=memberById(r.memberId);
+          h+=`<tr><td><span class="chip">${esc(mb.code)}</span></td><td><b>${esc(mb.name)}</b></td><td class="num">${r.count}</td>
+          <td>${isC?(r.reviewerId?esc(empById(r.reviewerId)?.name||'—'):'—'):(r.copyistId?esc(empById(r.copyistId)?.name||'—'):'—')}</td>
+          <td><span class="badge st-${r.status}">${ST[r.status]}</span></td><td>${fmtDT(isC?r.copiedAt:r.reviewedAt)}</td><td>${fmtDT(r.deliveredAt)}</td></tr>`}
+        h+=`<tr class="tot"><td colspan="2">إجمالي عمل ${esc(e.name)} في ${esc(c.name)}</td><td>${sum(cr)}</td><td colspan="4"></td></tr></table>`;
+      }
+      if(!any)h+=`<div class="empty">لا يوجد عمل مسند لهذا الموظف في هذه الجلسة</div>`;
+    }
+  }
+  document.getElementById('reportArea').innerHTML=h;
+}
+
+/* ===================== إقلاع ===================== */
+function init(){
+  db=load();
+  if(!db)db={seq:1,circuits:[],employees:[],months:[],assignments:[],currentMonthId:null};
+  // ضمان وجود circuitSessions للشهور القديمة إن وجدت
+  for(const m of db.months)ensureCircuitSessions(m);
+  save();renderMonthSelect();
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.tab==='dashboard'));
+  document.querySelectorAll('.tab').forEach(s=>s.style.display='none');
+  document.getElementById('tab-dashboard').style.display='block';
+  renderDashboard();
+}
+init();
+</script>
+</body>
+</html>
