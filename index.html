@@ -296,11 +296,11 @@ function renderDashboard(){
   if(!db.circuits.length)h+=`<tr><td colspan="7" class="muted" style="text-align:center;padding:20px">لا توجد دوائر بعد</td></tr>`;
   h+=`</table></div>`;
 
-  /* عبء الموظفين */
-  h+=`<div class="grid2"><div class="card"><h3>عبء عمل موظفي النسخ</h3><table><tr><th>الناسخ</th><th>المكلف به</th><th>أنجز منه</th></tr>`;
+  /* مهام الموظفين */
+  h+=`<div class="grid2"><div class="card"><h3>مهام عمل موظفي النسخ</h3><table><tr><th>الناسخ</th><th>المكلف به</th><th>أنجز منه</th></tr>`;
   for(const e of copyists()){const rs=rows.filter(r=>r.copyistId===e.id);const d=sum(rs.filter(r=>['copied','reviewing','reviewed','delivered'].includes(r.status)));h+=`<tr><td><b>${esc(e.name)}</b></td><td class="num">${sum(rs)} حكم</td><td style="color:var(--green);font-weight:900" class="num">${d}</td></tr>`}
   h+=copyists().length?'':'<tr><td colspan="3" class="muted" style="text-align:center">لا يوجد موظفو نسخ</td></tr>';
-  h+=`</table></div><div class="card"><h3>عبء عمل موظفي المراجعة</h3><table><tr><th>المراجع</th><th>المكلف به</th><th>أنجز منه</th></tr>`;
+  h+=`</table></div><div class="card"><h3>مهام عمل موظفي المراجعة</h3><table><tr><th>المراجع</th><th>المكلف به</th><th>أنجز منه</th></tr>`;
   for(const e of reviewers()){const rs=rows.filter(r=>r.reviewerId===e.id);const d=sum(rs.filter(r=>['reviewed','delivered'].includes(r.status)));h+=`<tr><td><b>${esc(e.name)}</b></td><td class="num">${sum(rs)} حكم</td><td style="color:var(--green);font-weight:900" class="num">${d}</td></tr>`}
   h+=reviewers().length?'':'<tr><td colspan="3" class="muted" style="text-align:center">لا يوجد موظفو مراجعة</td></tr>';
   h+=`</table></div></div></div>`;
